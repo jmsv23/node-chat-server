@@ -1,22 +1,22 @@
 var app = require('express')();
 var http = require('http').Server(app);
 var io = require('socket.io')(http);
-
-app.get('/', function(req, res){
-  res.send('<h1>Hello world</h1>');
-});
+var config = require('./config.json');
+var sanitizeHtml = require('sanitize-html');
 
 io.on('connection', function(socket){
-  console.log('a user connected');
+  // console.log('a user connected');
   socket.on('disconnect', function(){
-    console.log('user disconnected');
+    // console.log('user disconnected');
   });
   socket.on('chat message', function(msg){
-  	console.log('message: ' + msg);
-  	io.emit('server message',{msg: msg});
+  	// console.log('message: ' + msg);
+  	//sanitizar mensaje
+  	msg.msg = sanitizeHtml(msg.msg);
+  	io.emit('server message',msg);
   });
 });
 
-http.listen(3000, function(){
-  console.log('listening on *:3000');
+http.listen(config.port || 2000, function(){
+  console.log('listening on *:' + (config.port || 2000));
 });
